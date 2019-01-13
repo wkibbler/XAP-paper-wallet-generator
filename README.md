@@ -1,5 +1,5 @@
-Plain NodeJS web server
-#########################
+XAP Paper Wallet Generator
+============================
 to run
 ```
 node server.js
