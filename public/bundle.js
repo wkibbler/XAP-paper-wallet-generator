@@ -40938,42 +40938,53 @@ module.exports = {
 var XAPjs = require('XAPjs');
 var bip39 = require('bip39');
 var qr = require('qr-image');
-function generateWalletKeys(){
-  let mnemonic = bip39.generateMnemonic()
-  let seedBuffer = bip39.mnemonicToSeed(mnemonic)
-  let masterNode = XAPjs.HDNode.fromSeedBuffer(seedBuffer)
-  let account0 = masterNode.derivePath("m/44'/0'/0'")
-  let xpubString = account0.neutered().toBase58()
-  let key0 = account0.derivePath("0/0").keyPair
-  let key0FromXpub = account0.neutered().derivePath("0/0").keyPair
-  let address0 = key0.getAddress()
-  let address0FromXpub = key0FromXpub.getAddress()
-  var svg_string = qr.imageSync(address0, { type: 'svg' });
-  //document.getElementById('qrCode').innerHTML = svg_string;
-  document.getElementById('test').innerHTML = address0
-  document.getElementById('test1').innerHTML = key0.toWIF();
-}
-generateWalletKeys();
-},{"XAPjs":58,"bip39":93,"qr-image":135}]},{},[155]);/*
-var doc = new jsPDF();
-var specialElementHandlers = {
-    '#editor': function (element, renderer) {
-        return true;
-    }
-};
 
-$('#downloadPDF').click(function () {
-    doc.fromHTML($('#content').html(), 15, 15, {
-        'width': 170,
-            'elementHandlers': specialElementHandlers
-    },
-    function(bla){doc.save('saveInCallback.pdf');}
-  );
-    //doc.save('paper-wallet.pdf');
-});*/
-var pdf = new jsPDF('p', 'pt', 'letter');
-$('#downloadPDF').click(function () {
- pdf.addHTML($('#content')[0], function () {
-     pdf.save('Test.pdf');
- });
+  var mnemonic = bip39.generateMnemonic()
+  var seedBuffer = bip39.mnemonicToSeed(mnemonic)
+  var masterNode = XAPjs.HDNode.fromSeedBuffer(seedBuffer)
+  var account0 = masterNode.derivePath("m/44'/0'/0'")
+  var xpubString = account0.neutered().toBase58()
+  var key0 = account0.derivePath("0/0").keyPair
+  var key0FromXpub = account0.neutered().derivePath("0/0").keyPair
+  var address0 = key0.getAddress()
+  var address0FromXpub = key0FromXpub.getAddress()
+  var svg_string = qr.imageSync(address0, { type: 'svg' });
+  var privKey = key0.toWIF();
+  //document.getElementById('qrCode').innerHTML = svg_string;
+  localStorage.setItem('address', address0);
+  localStorage.setItem('privKey', privKey);
+  localStorage.setItem('qrCode', svg_string);
+
+},{"XAPjs":58,"bip39":93,"qr-image":135}]},{},[155]);
+
+function genPDF(){
+  var address = localStorage.getItem('address');
+  var qr = localStorage.getItem('qrCode');
+  var privKey = localStorage.getItem('privKey');
+  $.getJSON( "/public/images.json", function( json ) {
+    var doc = new jsPDF('p', 'pt', 'a5');
+    doc.addImage(json.header, 'png', 1, 1, 417, 200, 'alias');
+    doc.setFontSize(9);
+    doc.text(address, 100, 83);
+    doc.text(privKey, 110, 113);
+    doc.save("XAP-Paper-Wallet.pdf");
+    swal({
+      type: "success",
+      text: "Your paper wallet has been downloaded"
+    })
 });
+}
+function recoverCoins(){
+  swal({
+    text: 'To recover the coins stored in a paper wallet download a Bitcoin Air full node wallet from our GitHub release page, find the debug console and type "importprivkey <the private key displayed on the paper wallet>". This will import the address and balance to the full node wallet',
+    width: 1000,
+    confirmButtonText: "Got It"
+  });
+}
+function warning(){
+  swal({
+    type: "warning",
+    text: "bitcoinair.org holds no responsabilty to loss of fund via using this paper wallet generator",
+    confirmButtonText: "Got It"
+  })
+}
