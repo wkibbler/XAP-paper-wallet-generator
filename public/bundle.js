@@ -40965,9 +40965,9 @@ function genPDF(){
     var doc = new jsPDF('p', 'pt', 'a5');
     doc.addImage(json.header, 'png', 1, 1, 417, 200, 'alias');
     doc.setFontSize(9);
-    doc.text(address, 100, 83);
-    doc.text(privKey, 110, 113);
-    doc.save("XAP-Paper-Wallet.pdf");
+    doc.text(address, 100, 87);
+    doc.text(privKey, 110, 117);
+    doc.save("XBA-Paper-Wallet.pdf");
     swal({
       type: "success",
       text: "Your paper wallet has been downloaded"
